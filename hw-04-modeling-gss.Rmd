@@ -70,7 +70,10 @@ It's important that you don't recode the NAs, just the remaining levels.
 
 ```{r}
 gss16 <- gss16 %>%
-  mutate(advfront = if_else(advfront%in%c("Strongly agree", "Agree"), "agree", if_else(advfront%in%c("Strongly disagree", "Disagree"), "Not agree", advfront)))
+ mutate(advfront = case_when(
+    advfront %in% c("Strongly agree", "Agree") ~ "Agree",
+    !is.na(advfront) ~ "Not agree"
+  )) 
 
 gss16 %>%
   count(advfront)
@@ -84,7 +87,7 @@ You can do this in various ways. One option is to use the `str_detect()` functio
 
 ```{r}
 gss16 <- gss16 %>%
-  mutate(polviews = if_else(polviews%in%c("Extrmly conservative", "Conservative", "Slghtly conservative"), "Conservative", if_else(polviews%in%c("Extremely liberal", "Liberal", "Slightly liberal"), "Liberal", polviews)))
+  mutate(polviews = if_else(polviews%in%c("Extrmly conservative", "Conservative", "Slghtly conservative"), "Conservative", if_else(polviews%in%c("Extremely liberal", "Liberal", "Slightly liberal"), "Liberal", polviews))) 
 
 gss16 %>%
   count(polviews)
@@ -155,6 +158,7 @@ gss16_fit_rs_1 <- gss16_wflow_1 %>%
   fit_resamples(gss16_folds)
 
 collect_metrics(gss16_fit_rs_1, summarize = FALSE)
+collect_metrics(gss16_fit_rs_1)
 
 
 ```
@@ -185,11 +189,12 @@ gss16_fit_rs_2 <- gss16_wflow_2 %>%
   fit_resamples(gss16_folds)
 
 collect_metrics(gss16_fit_rs_2, summarize = FALSE)
+collect_metrics(gss16_fit_rs_2)
 ```
 
 10. Comment on which model performs better (one including `wrkstat`, model 1, or the one excluding `wrkstat`, model 2) on the training data based on area under the ROC curve.
 
-***Both of these models resulted in errors.***
+***The first model performed better than the second one.***
 
 11. Fit both models to the testing data, plot the ROC curves for the predictions for both models, and calculate the areas under the ROC curve.
     Does your answer to the previous exercise hold for the testing data as well?
@@ -226,6 +231,7 @@ gss16_test_fit_rs_1 <- gss16_test_wflow_1 %>%
   fit_resamples(gss16_test_folds)
 
 collect_metrics(gss16_test_fit_rs_1, summarize = FALSE)
+collect_metrics(gss16_test_fit_rs_1)
 ```
 ```{r eval=FALSE}
 gss16_test_rec_2 <- recipe(advfront ~ polviews + educ, data = gss16_test) %>%
@@ -245,8 +251,9 @@ gss16_test_fit_rs_2 <- gss16_test_wflow_2 %>%
   fit_resamples(gss16_test_folds)
 
 collect_metrics(gss16_test_fit_rs_2, summarize = FALSE)
+collect_metrics(gss16_test_fit_rs_2)
 ```
-***The test did not do well either because all it got was errors.***
+***My answer from the previous exercise is different than the testing data because the first model for the testing data performed better than the second model.***
 
 🧶 ✅ ⬆️ Knit, *commit, and push your changes to GitHub with an appropriate commit message. Make sure to commit and push all changed files so that your Git pane is cleared up afterwards.*
 
