@@ -267,8 +267,38 @@ The question is phrased as the following.
 Answers to this question are stored in the `harass5` variable in our dataset.
 
 12. Create a subset of the data that only contains `Yes` and `No` answers for the harassment question. How many responses chose each of these answers?
+
+***1093 respondents said `No` and 233 said `Yes`.***
+
+```{r}
+gss16_sub <- gss16%>%
+  filter(harass5 != "NA", harass5 != "Does not apply (i do not have a job/superior/co-worker)")
+
+gss16_sub %>%
+  count(harass5)
+```
+
 13. Describe how bootstrapping can be used to estimate the proportion of Americans who have been harassed by their superiors or co-workers at their job.
+
+***Bootstrapping would take a sample of these Americans and would calculate the statistic of who has been harassed.***
+
 14. Calculate a 95% bootstrap confidence interval for the proportion of Americans who have been harassed by their superiors or co-workers at their job. Interpret this interval in context of the data.
+
+***The lower statistic is around 0.16, and the upper statistic is around 0.20, meaning that the confidence interval is narrow.***
+
+```{r}
+boot_df <- gss16_sub %>%
+  specify(response = harass5, success = "Yes") %>%
+  generate(reps = 5000, type = "bootstrap") %>%
+  calculate(stat = "prop")
+
+boot_df %>%
+  summarize(lower = quantile(stat, 0.025),
+            upper = quantile(stat, 0.975))
+```
+
 15. Would you expect a 90% confidence interval to be wider or narrower than the interval you calculated above? Explain your reasoning.
+
+***I would expect a 90% confidence interval to be wider based on the graph in the "Bootstrapping" power point by Adam Sullivan. ***
 
 🧶 ✅ ⬆️ Knit, *commit, and push your changes to GitHub with an appropriate commit message. Make sure to commit and push all changed files so that your Git pane is cleared up afterwards and review the md document on GitHub to make sure you're happy with the final state of your work.*
